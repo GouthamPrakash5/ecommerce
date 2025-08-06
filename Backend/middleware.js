@@ -15,6 +15,8 @@ const configureMiddleware = (app) => {
       const allowedOrigins = [
         'http://localhost:5173',
         'http://localhost:5173/',
+        'https://ecommerce-psi-lime-47.vercel.app',
+        'https://ecommerce-psi-lime-47.vercel.app/',
         process.env.FRONTEND_URL,
         process.env.FRONTEND_URL ? process.env.FRONTEND_URL.replace(/\/$/, '') : null,
         process.env.FRONTEND_URL ? process.env.FRONTEND_URL + '/' : null
