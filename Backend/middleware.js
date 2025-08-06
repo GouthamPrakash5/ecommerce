@@ -46,6 +46,8 @@ const configureMiddleware = (app) => {
 
   // Static files middleware
   app.use(express.static(path.join(__dirname, 'public')));
+  app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 };
 
 // Error handling middleware
