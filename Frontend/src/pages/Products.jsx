@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Search, Filter, ShoppingCart, Eye } from 'lucide-react';
 import { useProducts } from '../contexts/ProductContext';
 import { useCart } from '../contexts/CartContext';
@@ -9,11 +9,20 @@ import RainbowText from '../components/RainbowText';
 const Products = () => {
   const { products, loading, error, searchProducts } = useProducts();
   const { addToCart } = useCart();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [sortBy, setSortBy] = useState('name');
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchResults, setSearchResults] = useState(null);
+
+  // Get category from URL params on component mount
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get('category');
+    if (categoryFromUrl) {
+      setSelectedCategory(categoryFromUrl);
+    }
+  }, [searchParams]);
 
   const categories = ['All', ...new Set(products.map(product => product.category))];
 
@@ -88,7 +97,7 @@ const Products = () => {
       {/* Filters and Search */}
       <div className="filters-section">
         <div className="search-box">
-          <Search size={20} />
+          
           <input
             type="text"
             placeholder="Search products..."
@@ -106,13 +115,14 @@ const Products = () => {
           <div className="filter-group">
             <label htmlFor="category">Category:</label>
             <select
+            style={{color:'#000'}}
               id="category"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="filter-select"
             >
               {categories.map(category => (
-                <option key={category} value={category}>{category}</option>
+                <option style={{color:'#000'}} key={category} value={category}>{category}</option>
               ))}
             </select>
           </div>
@@ -120,15 +130,16 @@ const Products = () => {
           <div className="filter-group">
             <label htmlFor="sort">Sort by:</label>
             <select
+            style={{color:'#000'}}
               id="sort"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               className="filter-select"
             >
-              <option value="name">Name</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="stock">Stock</option>
+              <option style={{color:'#000'}} value="name">Name</option>
+              <option style={{color:'#000'}} value="price-low">Price: Low to High</option>
+              <option style={{color:'#000'}} value="price-high">Price: High to Low</option>
+              <option style={{color:'#000'}} value="stock">Stock</option>
             </select>
           </div>
         </div>
@@ -202,11 +213,11 @@ const Products = () => {
                 <div className="product-price">
                   {product.hasDiscount ? (
                     <>
-                      <span className="discounted-price">${product.discountedPrice}</span>
-                      <span className="original-price">${product.price}</span>
+                      <span className="discounted-price">₹{product.discountedPrice}</span>
+                      <span className="original-price">₹{product.price}</span>
                     </>
                   ) : (
-                    <span className="current-price">${product.price}</span>
+                    <span className="current-price">₹{product.price}</span>
                   )}
                 </div>
               </div>

@@ -41,7 +41,7 @@ const PurchaseHistory = () => {
                 </div>
                 <div className="order-total">
                   <DollarSign size={20} />
-                  ${order.total.toFixed(2)}
+                  ₹{order.total.toFixed(2)}
                 </div>
               </div>
               
@@ -52,10 +52,10 @@ const PurchaseHistory = () => {
                     <div className="item-details">
                       <h4>{item.name}</h4>
                       <p>Quantity: {item.quantity}</p>
-                      <p>Price: ${item.price}</p>
+                      <p>Price: ₹{item.price}</p>
                     </div>
                     <div className="item-total">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      ₹{(item.price * item.quantity).toFixed(2)}
                     </div>
                   </div>
                 ))}

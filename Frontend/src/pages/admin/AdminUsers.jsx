@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Users, UserPlus, Shield, Ban, Edit, Trash2, Eye } from 'lucide-react';
 import RainbowText from '../../components/RainbowText';
+import apiService from '../../services/api';
 
 
 const AdminUsers = () => {
@@ -18,27 +19,15 @@ const AdminUsers = () => {
   });
   const [submitting, setSubmitting] = useState(false);
 
-  const API_BASE_URL = 'http://localhost:3000/api';
-
   // Fetch all users
   const fetchUsers = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`${API_BASE_URL}/auth/users`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      const data = await response.json();
-      
-      if (data.success) {
-        setUsers(data.data.users);
-      } else {
-        setError(data.message || 'Failed to fetch users');
-      }
+      const data = await apiService.getAllUsers();
+      setUsers(data.data.users);
     } catch (err) {
-      setError('Network error: Unable to fetch users');
+      setError(err.message || 'Network error: Unable to fetch users');
       console.error('Error fetching users:', err);
     } finally {
       setLoading(false);
@@ -49,27 +38,12 @@ const AdminUsers = () => {
   const createAdminUser = async (userData) => {
     try {
       setError(null);
-      const response = await fetch(`${API_BASE_URL}/auth/admin/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}` // Add auth token
-        },
-        body: JSON.stringify(userData),
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setUsers(prev => [...prev, data.data.user]);
-        return { success: true, data: data.data };
-      } else {
-        setError(data.message || 'Failed to create admin user');
-        return { success: false, error: data.message };
-      }
+      const data = await apiService.api.post('/api/auth/admin/register', userData);
+      setUsers(prev => [...prev, data.data.user]);
+      return { success: true, data: data.data };
     } catch (err) {
-      setError('Network error: Unable to create admin user');
-      return { success: false, error: 'Network error' };
+      setError(err.message || 'Failed to create admin user');
+      return { success: false, error: err.message };
     }
   };
 
@@ -77,31 +51,16 @@ const AdminUsers = () => {
   const toggleUserBlock = async (userId, isBlocked) => {
     try {
       setError(null);
-      const response = await fetch(`${API_BASE_URL}/auth/users/${userId}/block`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ isBlocked }),
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setUsers(prev =>
-          prev.map(user =>
-            user._id === userId ? { ...user, isBlocked } : user
-          )
-        );
-        return { success: true };
-      } else {
-        setError(data.message || 'Failed to update user status');
-        return { success: false, error: data.message };
-      }
+      await apiService.toggleUserBlock(userId, isBlocked);
+      setUsers(prev =>
+        prev.map(user =>
+          user._id === userId ? { ...user, isBlocked } : user
+        )
+      );
+      return { success: true };
     } catch (err) {
-      setError('Network error: Unable to update user status');
-      return { success: false, error: 'Network error' };
+      setError(err.message || 'Failed to update user status');
+      return { success: false, error: err.message };
     }
   };
 
@@ -109,31 +68,16 @@ const AdminUsers = () => {
   const changeUserRole = async (userId, role) => {
     try {
       setError(null);
-      const response = await fetch(`${API_BASE_URL}/auth/users/${userId}/role`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ role }),
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setUsers(prev =>
-          prev.map(user =>
-            user._id === userId ? { ...user, role } : user
-          )
-        );
-        return { success: true };
-      } else {
-        setError(data.message || 'Failed to change user role');
-        return { success: false, error: data.message };
-      }
+      await apiService.changeUserRole(userId, role);
+      setUsers(prev =>
+        prev.map(user =>
+          user._id === userId ? { ...user, role } : user
+        )
+      );
+      return { success: true };
     } catch (err) {
-      setError('Network error: Unable to change user role');
-      return { success: false, error: 'Network error' };
+      setError(err.message || 'Failed to change user role');
+      return { success: false, error: err.message };
     }
   };
 
@@ -141,25 +85,12 @@ const AdminUsers = () => {
   const deleteUser = async (userId) => {
     try {
       setError(null);
-      const response = await fetch(`${API_BASE_URL}/auth/users/${userId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setUsers(prev => prev.filter(user => user._id !== userId));
-        return { success: true };
-      } else {
-        setError(data.message || 'Failed to delete user');
-        return { success: false, error: data.message };
-      }
+      await apiService.deleteUser(userId);
+      setUsers(prev => prev.filter(user => user._id !== userId));
+      return { success: true };
     } catch (err) {
-      setError('Network error: Unable to delete user');
-      return { success: false, error: 'Network error' };
+      setError(err.message || 'Failed to delete user');
+      return { success: false, error: err.message };
     }
   };
 

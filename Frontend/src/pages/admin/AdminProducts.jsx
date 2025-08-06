@@ -474,11 +474,11 @@ const AdminProducts = () => {
                 <td>
                   {product.hasDiscount ? (
                     <>
-                      <span className="discounted-price">${product.discountedPrice}</span>
-                      <span className="original-price">${product.price}</span>
+                      <span className="discounted-price">₹{product.discountedPrice}</span>
+                      <span className="original-price">₹{product.price}</span>
                     </>
                   ) : (
-                    <span className="current-price">${product.price}</span>
+                    <span className="current-price">₹{product.price}</span>
                   )}
                 </td>
                 <td>

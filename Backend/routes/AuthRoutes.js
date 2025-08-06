@@ -8,6 +8,7 @@ router.post('/login', authController.login);
 
 // Admin registration route (requires admin authentication)
 router.post('/admin/register', authController.verifyToken, authController.requireAdmin, authController.registerAdmin);
+// router.post('/admin/register',  authController.registerAdmin);
 
 // Protected routes (authentication required)
 router.get('/profile', authController.verifyToken, authController.getProfile);

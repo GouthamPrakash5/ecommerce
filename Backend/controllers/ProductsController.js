@@ -1,6 +1,7 @@
 const Product = require('../models/ProductsModel');
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
 
 // Get all products with pagination and filtering
 const getAllProducts = async (req, res) => {
@@ -177,7 +178,7 @@ const createProduct = async (req, res) => {
     // Handle uploaded files
     if (req.files && req.files.length > 0) {
       const uploadedImages = req.files.map((file, index) => ({
-        url: `http://localhost:3000/uploads/products/${file.filename}`,
+        url: `${process.env.BACKEND_URL}uploads/products/${file.filename}`,
         alt: req.body.imageAlt || `Product image ${index + 1}`,
         isPrimary: index === 0 // First image is primary
       }));
@@ -250,7 +251,7 @@ const updateProduct = async (req, res) => {
     // Handle uploaded files
     if (req.files && req.files.length > 0) {
       const uploadedImages = req.files.map((file, index) => ({
-        url: `http://localhost:3000/uploads/products/${file.filename}`,
+        url: `${process.env.BACKEND_URL}uploads/products/${file.filename}`,
         alt: req.body.imageAlt || `Product image ${index + 1}`,
         isPrimary: index === 0
       }));

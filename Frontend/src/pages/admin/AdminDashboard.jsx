@@ -89,7 +89,7 @@ const AdminDashboard = () => {
             <DollarSign size={24} />
           </div>
           <div className="stat-content">
-            <h3>${stats.totalRevenue.toFixed(2)}</h3>
+            <h3>₹{stats.totalRevenue.toFixed(2)}</h3>
             <p>Total Revenue</p>
           </div>
         </div>
@@ -163,7 +163,7 @@ const AdminDashboard = () => {
                     <p>{order.items.length} items</p>
                   </div>
                   <div className="order-total">
-                    ${order.total.toFixed(2)}
+                    ₹{order.total.toFixed(2)}
                   </div>
                   <div className="order-status">
                     <span className="status-badge completed">{order.status}</span>

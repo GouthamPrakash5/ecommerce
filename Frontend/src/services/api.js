@@ -1,8 +1,53 @@
+import axios from 'axios';
+
 const BACKEND_API = import.meta.env.VITE_BACKEND_API || 'http://localhost:3000';
 
 class ApiService {
   constructor() {
     this.baseURL = BACKEND_API;
+    console.log('API Base URL:', this.baseURL); // Debug log
+    
+    // Create axios instance
+    this.api = axios.create({
+      baseURL: this.baseURL,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    // Request interceptor to add auth token
+    this.api.interceptors.request.use(
+      (config) => {
+        const token = this.getAuthToken();
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
+
+    // Response interceptor for error handling
+    this.api.interceptors.response.use(
+      (response) => {
+        return response.data;
+      },
+      (error) => {
+        console.error('API request failed:', error);
+        if (error.response) {
+          // Server responded with error status
+          throw new Error(error.response.data?.message || `HTTP error! status: ${error.response.status}`);
+        } else if (error.request) {
+          // Request was made but no response received
+          throw new Error('Network error: No response received');
+        } else {
+          // Something else happened
+          throw new Error('Request setup error');
+        }
+      }
+    );
   }
 
   // Helper method to get auth token from localStorage
@@ -20,111 +65,55 @@ class ApiService {
     localStorage.removeItem('token');
   }
 
-  // Generic request method
-  async request(endpoint, options = {}) {
-    const url = `${this.baseURL}${endpoint}`;
-    
-    // Default headers
-    const headers = {
-      'Content-Type': 'application/json',
-      ...options.headers
-    };
-
-    // Add auth token if available
-    const token = this.getAuthToken();
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
-
-    const config = {
-      ...options,
-      headers
-    };
-
-    try {
-      const response = await fetch(url, config);
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || `HTTP error! status: ${response.status}`);
-      }
-
-      return data;
-    } catch (error) {
-      console.error('API request failed:', error);
-      throw error;
-    }
-  }
-
   // Authentication methods
   async register(userData) {
-    return this.request('/api/auth/register', {
-      method: 'POST',
-      body: JSON.stringify(userData)
-    });
+    return this.api.post('/api/auth/register', userData);
   }
 
   async login(credentials) {
-    return this.request('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(credentials)
-    });
+    return this.api.post('/api/auth/login', credentials);
   }
 
   async getProfile() {
-    return this.request('/api/auth/profile');
+    return this.api.get('/api/auth/profile');
   }
 
   async updateProfile(profileData) {
-    return this.request('/api/auth/profile', {
-      method: 'PUT',
-      body: JSON.stringify(profileData)
-    });
+    return this.api.put('/api/auth/profile', profileData);
   }
 
   async changePassword(passwordData) {
-    return this.request('/api/auth/change-password', {
-      method: 'PUT',
-      body: JSON.stringify(passwordData)
-    });
+    return this.api.put('/api/auth/change-password', passwordData);
   }
 
   async getPurchaseHistory() {
-    return this.request('/api/auth/purchase-history');
+    return this.api.get('/api/auth/purchase-history');
   }
 
   // Admin methods
   async getAllUsers(page = 1, limit = 10) {
-    return this.request(`/api/auth/users?page=${page}&limit=${limit}`);
+    return this.api.get(`/api/auth/users?page=${page}&limit=${limit}`);
   }
 
   async getUserById(userId) {
-    return this.request(`/api/auth/users/${userId}`);
+    return this.api.get(`/api/auth/users/${userId}`);
   }
 
   async toggleUserBlock(userId, isBlocked) {
-    return this.request(`/api/auth/users/${userId}/block`, {
-      method: 'PUT',
-      body: JSON.stringify({ isBlocked })
-    });
+    return this.api.put(`/api/auth/users/${userId}/block`, { isBlocked });
   }
 
   async changeUserRole(userId, role) {
-    return this.request(`/api/auth/users/${userId}/role`, {
-      method: 'PUT',
-      body: JSON.stringify({ role })
-    });
+    return this.api.put(`/api/auth/users/${userId}/role`, { role });
   }
 
   async deleteUser(userId) {
-    return this.request(`/api/auth/users/${userId}`, {
-      method: 'DELETE'
-    });
+    return this.api.delete(`/api/auth/users/${userId}`);
   }
 
   // Health check
   async healthCheck() {
-    return this.request('/api/health');
+    return this.api.get('/api/health');
   }
 }
 

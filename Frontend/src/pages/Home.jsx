@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, ShoppingBag, Star, Truck, Shield, CreditCard } from 'lucide-react';
 import { useProducts } from '../contexts/ProductContext';
 import RainbowText from '../components/RainbowText';
@@ -7,7 +7,12 @@ import ApiTest from '../components/ApiTest';
 
 const Home = () => {
   const { products } = useProducts();
+  const navigate = useNavigate();
   const featuredProducts = products.slice(0, 4);
+
+  const handleCategoryClick = (category) => {
+    navigate(`/products?category=${encodeURIComponent(category)}`);
+  };
 
   return (
     <div className="home">
@@ -84,7 +89,7 @@ const Home = () => {
               <div className="product-info">
                 <h3>{product.name}</h3>
                 <p className="product-category">{product.category}</p>
-                <div className="product-price">${product.price}</div>
+                <div className="product-price">₹{product.price}</div>
                 <div className="product-stock">
                   {product.stock > 0 ? (
                     <span className="in-stock">In Stock ({product.stock})</span>
@@ -111,11 +116,19 @@ const Home = () => {
           <p>Find what you're looking for</p>
         </div>
         <div className="categories-grid">
-          <div className="category-card" style={{ background: 'linear-gradient(135deg, var(--red), var(--orange))' }}>
+          <div 
+            className="category-card" 
+            style={{ background: 'linear-gradient(135deg, var(--red), var(--orange))' }}
+            onClick={() => handleCategoryClick('Condoms')}
+          >
             <h3>Condoms</h3>
             <p>For your pleasure</p>
           </div>
-          <div className="category-card" style={{ background: 'linear-gradient(135deg, var(--yellow), var(--green))' }}>
+          <div 
+            className="category-card" 
+            style={{ background: 'linear-gradient(135deg, var(--yellow), var(--green))' }}
+            onClick={() => handleCategoryClick('Lubes')}
+          >
             <h3>Lubes</h3>
             <p>For your pleasure</p>
           </div>

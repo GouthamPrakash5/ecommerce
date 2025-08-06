@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import apiService from '../services/api';
 
 const ProductContext = createContext();
 
@@ -15,23 +16,15 @@ export const ProductProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const API_BASE_URL = 'http://localhost:3000/api';
-
   // Fetch all products from API
   const fetchProducts = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`${API_BASE_URL}/products`);
-      const data = await response.json();
-      
-      if (data.success) {
-        setProducts(data.data);
-      } else {
-        setError(data.message || 'Failed to fetch products');
-      }
+      const data = await apiService.api.get('/api/products');
+      setProducts(data.data);
     } catch (err) {
-      setError('Network error: Unable to fetch products');
+      setError(err.message || 'Network error: Unable to fetch products');
       console.error('Error fetching products:', err);
     } finally {
       setLoading(false);
@@ -46,31 +39,24 @@ export const ProductProvider = ({ children }) => {
       // Check if productData is FormData (file upload) or regular object
       const isFormData = productData instanceof FormData;
       
-      const headers = {};
-      if (!isFormData) {
-        headers['Content-Type'] = 'application/json';
-      }
-      
-      const body = isFormData ? productData : JSON.stringify(productData);
-      
-      const response = await fetch(`${API_BASE_URL}/products`, {
-        method: 'POST',
-        headers,
-        body,
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
+      if (isFormData) {
+        // For file uploads, use the axios instance directly with proper headers
+        const data = await apiService.api.post('/api/products', productData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
         setProducts(prev => [...prev, data.data]);
         return { success: true, data: data.data };
       } else {
-        setError(data.message || 'Failed to create product');
-        return { success: false, error: data.message };
+        // For regular JSON data
+        const data = await apiService.api.post('/api/products', productData);
+        setProducts(prev => [...prev, data.data]);
+        return { success: true, data: data.data };
       }
     } catch (err) {
-      setError('Network error: Unable to create product');
-      return { success: false, error: 'Network error' };
+      setError(err.message || 'Failed to create product');
+      return { success: false, error: err.message };
     }
   };
 
@@ -82,22 +68,13 @@ export const ProductProvider = ({ children }) => {
       // Check if updates is FormData (file upload) or regular object
       const isFormData = updates instanceof FormData;
       
-      const headers = {};
-      if (!isFormData) {
-        headers['Content-Type'] = 'application/json';
-      }
-      
-      const body = isFormData ? updates : JSON.stringify(updates);
-      
-      const response = await fetch(`${API_BASE_URL}/products/${id}`, {
-        method: 'PUT',
-        headers,
-        body,
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
+      if (isFormData) {
+        // For file uploads, use the axios instance directly with proper headers
+        const data = await apiService.api.put(`/api/products/${id}`, updates, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
         setProducts(prev =>
           prev.map(product =>
             product._id === id ? data.data : product
@@ -105,12 +82,18 @@ export const ProductProvider = ({ children }) => {
         );
         return { success: true, data: data.data };
       } else {
-        setError(data.message || 'Failed to update product');
-        return { success: false, error: data.message };
+        // For regular JSON data
+        const data = await apiService.api.put(`/api/products/${id}`, updates);
+        setProducts(prev =>
+          prev.map(product =>
+            product._id === id ? data.data : product
+          )
+        );
+        return { success: true, data: data.data };
       }
     } catch (err) {
-      setError('Network error: Unable to update product');
-      return { success: false, error: 'Network error' };
+      setError(err.message || 'Failed to update product');
+      return { success: false, error: err.message };
     }
   };
 
@@ -118,39 +101,22 @@ export const ProductProvider = ({ children }) => {
   const deleteProduct = async (id) => {
     try {
       setError(null);
-      const response = await fetch(`${API_BASE_URL}/products/${id}`, {
-        method: 'DELETE',
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setProducts(prev => prev.filter(product => product._id !== id));
-        return { success: true };
-      } else {
-        setError(data.message || 'Failed to delete product');
-        return { success: false, error: data.message };
-      }
+      await apiService.api.delete(`/api/products/${id}`);
+      setProducts(prev => prev.filter(product => product._id !== id));
+      return { success: true };
     } catch (err) {
-      setError('Network error: Unable to delete product');
-      return { success: false, error: 'Network error' };
+      setError(err.message || 'Failed to delete product');
+      return { success: false, error: err.message };
     }
   };
 
   // Get product by ID
   const getProductById = async (id) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/products/${id}`);
-      const data = await response.json();
-      
-      if (data.success) {
-        return data.data;
-      } else {
-        setError(data.message || 'Product not found');
-        return null;
-      }
+      const data = await apiService.api.get(`/api/products/${id}`);
+      return data.data;
     } catch (err) {
-      setError('Network error: Unable to fetch product');
+      setError(err.message || 'Product not found');
       return null;
     }
   };
@@ -158,17 +124,10 @@ export const ProductProvider = ({ children }) => {
   // Search products
   const searchProducts = async (query) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/products/search?q=${encodeURIComponent(query)}`);
-      const data = await response.json();
-      
-      if (data.success) {
-        return data.data;
-      } else {
-        setError(data.message || 'Search failed');
-        return [];
-      }
+      const data = await apiService.api.get(`/api/products/search?q=${encodeURIComponent(query)}`);
+      return data.data;
     } catch (err) {
-      setError('Network error: Unable to search products');
+      setError(err.message || 'Search failed');
       return [];
     }
   };
@@ -176,17 +135,10 @@ export const ProductProvider = ({ children }) => {
   // Get products by category
   const getProductsByCategory = async (category) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/products/category/${encodeURIComponent(category)}`);
-      const data = await response.json();
-      
-      if (data.success) {
-        return data.data;
-      } else {
-        setError(data.message || 'Failed to fetch category products');
-        return [];
-      }
+      const data = await apiService.api.get(`/api/products/category/${encodeURIComponent(category)}`);
+      return data.data;
     } catch (err) {
-      setError('Network error: Unable to fetch category products');
+      setError(err.message || 'Failed to fetch category products');
       return [];
     }
   };
@@ -194,17 +146,10 @@ export const ProductProvider = ({ children }) => {
   // Get featured products
   const getFeaturedProducts = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/products/featured`);
-      const data = await response.json();
-      
-      if (data.success) {
-        return data.data;
-      } else {
-        setError(data.message || 'Failed to fetch featured products');
-        return [];
-      }
+      const data = await apiService.api.get('/api/products/featured');
+      return data.data;
     } catch (err) {
-      setError('Network error: Unable to fetch featured products');
+      setError(err.message || 'Failed to fetch featured products');
       return [];
     }
   };
