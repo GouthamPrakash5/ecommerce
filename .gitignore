@@ -101,7 +101,7 @@ public/   # Gatsby
 # -----------------------------------
 
 # Ignore all uploaded files by default
-Backend/public/uploads/**
+
 
 # But include static product images (keep structure + files inside)
-!Backend/public/uploads/products/**
+
