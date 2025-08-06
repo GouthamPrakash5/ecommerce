@@ -26,6 +26,9 @@ configureMiddleware(app);
 
 // API Routes
 app.use('/api', apiRoutes);
+app.get('/', (req, res) => {
+  res.send('API is working!');
+});
 
 // Error handling middleware
 app.use(errorHandler);
