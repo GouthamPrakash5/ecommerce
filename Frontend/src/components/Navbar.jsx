@@ -19,7 +19,7 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="navbar-container">
         <Link to="/" className="navbar-brand">
-          <RainbowText className="brand-text">RainbowShop</RainbowText>
+          <RainbowText className="brand-text">K Condoms</RainbowText>
         </Link>
 
         <div className="navbar-links">

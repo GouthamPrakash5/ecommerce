@@ -20,7 +20,7 @@ const Home = () => {
       <section className="hero">
         <div className="hero-content">
           <h1 className="hero-title">
-            Welcome to <RainbowText>RainbowShop</RainbowText>
+            Welcome to <RainbowText>K Condoms</RainbowText>
           </h1>
           <p className="hero-subtitle">
             Discover amazing products with our vibrant collection. Quality meets style in every purchase.

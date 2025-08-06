@@ -18,14 +18,14 @@ const ApiTest = () => {
     }
   };
 
-  return (
-    <div style={{ padding: '20px', border: '1px solid #ccc', margin: '20px' }}>
-      <h3>Backend API Test</h3>
-      <button onClick={testConnection}>Test Backend Connection</button>
-      {status && <p style={{ color: 'green' }}>{status}</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-    </div>
-  );
+  // return (
+  //   <div style={{ padding: '20px', border: '1px solid #ccc', margin: '20px' }}>
+  //     <h3>Backend API Test</h3>
+  //     <button onClick={testConnection}>Test Backend Connection</button>
+  //     {status && <p style={{ color: 'green' }}>{status}</p>}
+  //     {error && <p style={{ color: 'red' }}>{error}</p>}
+  //   </div>
+  // );
 };
 
 export default ApiTest; 
