@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BACKEND_API = import.meta.env.VITE_BACKEND_API || 'http://localhost:3000';
+const BACKEND_API = import.meta.env.VITE_BACKEND_API || 'https://ecommerce-9vbo.onrender.com/';
 
 class ApiService {
   constructor() {
